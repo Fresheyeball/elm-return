@@ -17,21 +17,32 @@ Basically this means the functions exposed in this library allow you to interact
 
 ## Static piping
 
+```elm
+x : Return Msg Model
+x = y >>| \model -> tell (doThing model.baz)
+       >| foo model.baa
+      >>| bar >> singleton
+        |> map (\model -> {model | baa = 4})
+```
+
+Without static piping, we are forced to use more language features, and the intention of our code is arguably less clear or sequential.
 
 ```elm
+x' : Return Msg Model
+x' = case y of
+  (model, cmd) ->
+    let
+      (model', cmd') = foo model.baa
+      (model'') = bar model'
+    in {model'' | baa = 4} ! [cmd, doThing model.baz, cmd']
+```
 
+Give the following types for these examples
 
-update : Msg -> Model -> Return Msg Model
-update msg model =
-  let
-    update' : Msg -> Model -> Return Msg Model
-    update' -- some function as you would expect in TEA
-  in
-    update' msg model
-      >>| \model' -> tell getUser
-       >| foo "foo" { model' | foo = 3 }
-      >>| listen \(model'', cmd) ->
-      >>| tell ([getOrganization model''])
-
-
+```elm
+type alias Model = { baz : String, baa : Int }
+y : Return Msg Model
+doThing : String -> Cmd Msg
+foo : Int -> Return Msg Model
+bar : Model -> Model
 ```
