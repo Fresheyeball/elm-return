@@ -6,7 +6,7 @@ Modeling the `update` tuple as a Monad
 @docs Return
 
 ## Basics
-@docs map, map2, map3, map4, map5, andMap, singleton, andThen, (|<), (>|)
+@docs map, map2, map3, map4, map5, andMap, singleton, andThen, (|<), (>|), (>>|), (|<<)
 
 ## Write `Cmd`s
 @docs writer, tell, listen, pass, censor
@@ -98,6 +98,30 @@ andThen ( model, cmd ) f =
         model' ! [ cmd, cmd' ]
 
 
+infixl 6 >>|
+{-| -}
+(>>|) : Return msg a -> (a -> Return msg b) -> Return msg b
+(>>|) =
+    andThen
+
+infixr 4 |<<
+{-| -}
+(|<<) : (a -> Return msg b) -> Return msg a -> Return msg b
+(|<<) =
+    flip andThen
+
+infixl 7 >|
+{-| -}
+(>|) : Return msg model -> Return msg model' -> Return msg model'
+(>|) r r' =
+    r `andThen` \_ -> r'
+
+infixr 5 |<
+{-| -}
+(|<) : Return msg model' -> Return msg model -> Return msg model'
+(|<) =
+    flip (>|)
+
 {-| -}
 writer : ( model, Cmd msg ) -> Return msg model
 writer =
@@ -140,16 +164,7 @@ reader =
     censor
 
 
-{-| -}
-(>|) : Return msg model -> Return msg model -> Return msg model
-(>|) r r' =
-    r `andThen` \_ -> r'
 
-
-{-| -}
-(|<) : Return msg model -> Return msg model -> Return msg model
-(|<) =
-    flip (>|)
 
 
 {-| -}
