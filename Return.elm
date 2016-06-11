@@ -104,7 +104,7 @@ infixl 6 >>|
 (>>|) =
     andThen
 
-infixr 4 |<<
+infixr 6 |<<
 {-| -}
 (|<<) : (a -> Return msg b) -> Return msg a -> Return msg b
 (|<<) =
@@ -116,7 +116,7 @@ infixl 7 >|
 (>|) r r' =
     r `andThen` \_ -> r'
 
-infixr 5 |<
+infixr 7 |<
 {-| -}
 (|<) : Return msg model' -> Return msg model -> Return msg model'
 (|<) =
