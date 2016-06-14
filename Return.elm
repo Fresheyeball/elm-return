@@ -2,7 +2,7 @@ module Return exposing (..)
 
 {-|
 ## Type
-Modeling the `update` tuple as a Monad
+Modeling the `update` tuple as a Monad similar to `Writer`
 @docs Return, ReturnF
 
 ## Mapping
@@ -221,9 +221,11 @@ resulting =
 
 this code roughly becomes:
 
-getResult : { model | bar : Int } -> Return msg { model | bar : Int }
-getResult =
+```elm
+doFoo3Times : { model | bar : Int } -> Return msg { model | bar : Int }
+doFoo3Times =
   foo >>> foo >>> foo
+```
 -}
 (<<<) : (b -> Return msg c) -> (a -> Return msg b) -> a -> Return msg c
 (<<<) f f' model =
@@ -261,7 +263,6 @@ effect f ( model, cmd ) =
 
 
 {-|
-Included for completeness, unintuitive Haskell name, tell me what to call this.
 -}
 listen : Return msg a -> Return msg (Return msg a)
 listen ( model, cmd ) =
@@ -269,7 +270,6 @@ listen ( model, cmd ) =
 
 
 {-|
-Included for completeness, unintuitive Haskell name, tell me what to call this.
 -}
 pass : Return msg ( model, Cmd msg -> Cmd msg' ) -> Return msg' model
 pass ( ( x, f ), cmd ) =
@@ -285,7 +285,6 @@ mapCmd f ( model, cmd ) =
 
 
 {-|
-Included for completeness, unintuitive Haskell name, tell me what to call this.
 -}
 ask : Return msg model -> Return msg (Cmd msg)
 ask ( _, cmd ) =
