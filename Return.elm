@@ -8,18 +8,20 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 ## Mapping
 @docs map, map2, map3, map4, map5, andMap, mapWith, mapCmd
 
+## Piping
+@docs piper, pipel, zero
+
 ## Basics
-@docs singleton, andThen, (|<), (>|), (>>|), (|<<), (>>>), (<<<)
+@docs singleton, andThen, (>>>), (<<<)
 
 ## Write `Cmd`s
-@docs return, command, tell, pass, effect
-
-## Read `Cmd`s
-@docs ask, listen
+@docs return, command, effect
 
 ## Fancy non-sense
 @docs sequence, flatten
 -}
+
+import Respond exposing (..)
 
 
 {-| -}
@@ -30,6 +32,24 @@ type alias Return msg model =
 {-| -}
 type alias ReturnF msg model =
     Return msg model -> Return msg model
+
+
+{-| -}
+piper : List (ReturnF msg model) -> ReturnF msg model
+piper =
+    List.foldr (<<) zero
+
+
+{-| -}
+pipel : List (ReturnF msg model) -> ReturnF msg model
+pipel =
+    List.foldl (>>) zero
+
+
+{-| -}
+zero : ReturnF msg model
+zero =
+    identity
 
 
 {-|
@@ -159,46 +179,6 @@ andThen ( model, cmd ) f =
         model' ! [ cmd, cmd' ]
 
 
-infixl 6 >>|
-
-
-{-| -}
-(>>|) : Return msg a -> (a -> Return msg b) -> Return msg b
-(>>|) =
-    andThen
-
-
-infixr 6 |<<
-
-
-{-| -}
-(|<<) : (a -> Return msg b) -> Return msg a -> Return msg b
-(|<<) =
-    flip andThen
-
-
-infixl 7 >|
-
-
-{-|
-Same as `>>|` but the left hand `Model` is dropped
--}
-(>|) : Return msg model -> Return msg model' -> Return msg model'
-(>|) r r' =
-    r `andThen` \_ -> r'
-
-
-infixr 7 |<
-
-
-{-|
-Same as `>>|` but the right hand `Model` is dropped
--}
-(|<) : Return msg model' -> Return msg model -> Return msg model'
-(|<) =
-    flip (>|)
-
-
 {-|
 Construct a new `Return` from parts
 -}
@@ -239,17 +219,9 @@ doFoo3Times =
 
 
 {-|
-Construct a `Return` from a `Cmd`
--}
-tell : Cmd msg -> Return msg ()
-tell =
-    (,) ()
-
-
-{-|
 Add a `Cmd` to a `Return`, the `Model` is uneffected
 -}
-command : Cmd msg -> Return msg model -> Return msg model
+command : Cmd msg -> ReturnF msg model
 command cmd ( model, cmd' ) =
     model ! [ cmd, cmd' ]
 
@@ -257,23 +229,9 @@ command cmd ( model, cmd' ) =
 {-|
 Add a `Cmd` to a `Return` based on its `Model`, the `Model` will not be effected
 -}
-effect : (model -> Cmd msg) -> Return msg model -> Return msg model
+effect : Respond msg model -> ReturnF msg model
 effect f ( model, cmd ) =
     model ! [ cmd, f model ]
-
-
-{-|
--}
-listen : Return msg a -> Return msg (Return msg a)
-listen ( model, cmd ) =
-    ( ( model, cmd ), cmd )
-
-
-{-|
--}
-pass : Return msg ( model, Cmd msg -> Cmd msg' ) -> Return msg' model
-pass ( ( x, f ), cmd ) =
-    ( x, f cmd )
 
 
 {-|
@@ -282,13 +240,6 @@ Map on the `Cmd`.
 mapCmd : (Cmd a -> Cmd b) -> Return a model -> Return b model
 mapCmd f ( model, cmd ) =
     ( model, f cmd )
-
-
-{-|
--}
-ask : Return msg model -> Return msg (Cmd msg)
-ask ( _, cmd ) =
-    ( cmd, cmd )
 
 
 {-| -}
