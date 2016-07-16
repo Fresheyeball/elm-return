@@ -6,7 +6,7 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 @docs Return, ReturnF
 
 ## Mapping
-@docs map, map2, map3, map4, map5, andMap, mapWith, mapCmd
+@docs map, map2, map3, map4, map5, andMap, mapWith, mapCmd, mapBoth
 
 ## Piping
 @docs piper, pipel, zero
@@ -74,6 +74,31 @@ Map an `Return` into a `Return` containing a `Model` function
 andMap : Return msg (a -> b) -> Return msg a -> Return msg b
 andMap ( f, cmd ) ( model, cmd' ) =
     f model ! [ cmd, cmd' ]
+
+
+{-|
+Map over both the model and the msg type of the `Return`.
+This is useful for easily embedding a `Return` in a Union Type.
+For example
+
+```elm
+import Foo
+
+type Msg = Foo Foo.Msg
+type Model = FooModel Foo.Model
+
+...
+
+update : Msg -> Model -> Return Msg Model
+update msg model =
+   case msg of
+     Foo foo -> Foo.update foo model.foo
+      |> mapBoth Foo FooModel
+```
+-}
+mapBoth : (a -> b) -> (c -> d) -> Return a c -> Return b d
+mapBoth f f' ( model, cmd ) =
+    ( f' model, Cmd.map f cmd )
 
 
 {-|
