@@ -6,7 +6,7 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 @docs Return, ReturnF
 
 ## Mapping
-@docs map, map2, map3, map4, map5, andMap, mapWith, mapCmd, mapBoth
+@docs map, map2, map3, map4, map5, andMap, mapWith, mapCmd, mapBoth, dropCmd
 
 ## Piping
 @docs piper, pipel, zero
@@ -64,8 +64,8 @@ map f ( model, cmd ) =
 Transform the `Model` of and add a new `Cmd` to the queue
 -}
 mapWith : (a -> b) -> Cmd msg -> Return msg a -> Return msg b
-mapWith f cmd' =
-    andMap ( f, cmd' )
+mapWith =
+    curry andMap
 
 
 {-|
@@ -262,9 +262,17 @@ effect f ( model, cmd ) =
 {-|
 Map on the `Cmd`.
 -}
-mapCmd : (Cmd a -> Cmd b) -> Return a model -> Return b model
+mapCmd : (a -> b) -> Return a model -> Return b model
 mapCmd f ( model, cmd ) =
-    ( model, f cmd )
+    ( model, Cmd.map f cmd )
+
+
+{-|
+Drop the current `Cmd` and replace with an empty thunk
+-}
+dropCmd : ReturnF msg model
+dropCmd =
+    singleton << fst
 
 
 {-| -}

@@ -69,8 +69,10 @@ update msg model =
 
 The code above is good, but it suffers in some areas. For example
 we could forget to include `updateCmd` in the final `in` expression,
-and those side effects are not lost. Or we could neglect to put the
+and those side effects are lost. Or we could neglect to put the
 final *third* version of the model, `transformed`, into `conditionallyDoSomething`.
+That and there is a big dependence on pattern matching and literals,
+which does not lend itself well to pipelining. 
 
 Lets see how we can clean this up with `Return`.
 
