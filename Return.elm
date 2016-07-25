@@ -64,8 +64,8 @@ map f ( model, cmd ) =
 Transform the `Model` of and add a new `Cmd` to the queue
 -}
 mapWith : (a -> b) -> Cmd msg -> Return msg a -> Return msg b
-mapWith f cmd' ( model, cmd ) =
-    f model ! [ cmd', cmd ]
+mapWith f cmd' =
+    andMap ( f, cmd' )
 
 
 {-|
@@ -272,7 +272,7 @@ sequence : List (Return msg model) -> Return msg (List model)
 sequence =
     let
         f ( model, cmd ) ( models, cmds ) =
-            ( model :: models, Cmd.batch [ cmd, cmds ] )
+            (model :: models) ! [ cmd, cmds ]
     in
         List.foldr f ( [], Cmd.none )
 
