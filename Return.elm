@@ -15,7 +15,7 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 @docs singleton, andThen, (>>>), (<<<)
 
 ## Write `Cmd`s
-@docs return, command, effect
+@docs return, command, effect_
 
 ## Fancy non-sense
 @docs sequence, flatten
@@ -254,8 +254,8 @@ command cmd ( model, cmd' ) =
 {-|
 Add a `Cmd` to a `Return` based on its `Model`, the `Model` will not be effected
 -}
-effect : Respond msg model -> ReturnF msg model
-effect f ( model, cmd ) =
+effect_ : Respond msg model -> ReturnF msg model
+effect_ f ( model, cmd ) =
     model ! [ cmd, f model ]
 
 
