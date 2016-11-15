@@ -1,5 +1,5 @@
 {
-    "version": "5.0.0",
+    "version": "6.0.0",
     "summary": "Return as a Writer Monad",
     "repository": "https://github.com/Fresheyeball/elm-return.git",
     "license": "BSD3",
