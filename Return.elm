@@ -22,6 +22,7 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 -}
 
 import Respond exposing (..)
+import Tuple
 
 
 {-| -}
@@ -65,15 +66,15 @@ Transform the `Model` of and add a new `Cmd` to the queue
 -}
 mapWith : (a -> b) -> Cmd msg -> Return msg a -> Return msg b
 mapWith =
-    curry andMap
+    curry <| flip andMap
 
 
 {-|
 Map an `Return` into a `Return` containing a `Model` function
 -}
-andMap : Return msg (a -> b) -> Return msg a -> Return msg b
-andMap ( f, cmd ) ( model, cmd' ) =
-    f model ! [ cmd, cmd' ]
+andMap : Return msg a -> Return msg (a -> b) -> Return msg b
+andMap ( model, cmd_ ) ( f, cmd ) =
+    f model ! [ cmd, cmd_ ]
 
 
 {-|
@@ -97,8 +98,8 @@ update msg model =
 ```
 -}
 mapBoth : (a -> b) -> (c -> d) -> Return a c -> Return b d
-mapBoth f f' ( model, cmd ) =
-    ( f' model, Cmd.map f cmd )
+mapBoth f f_ ( model, cmd ) =
+    ( f_ model, Cmd.map f cmd )
 
 
 {-|
@@ -116,8 +117,8 @@ map2 :
     -> Return msg a
     -> Return msg b
     -> Return msg c
-map2 f ( x, cmd ) ( y, cmd' ) =
-    f x y ! [ cmd, cmd' ]
+map2 f ( x, cmd ) ( y, cmd_ ) =
+    f x y ! [ cmd, cmd_ ]
 
 
 {-| -}
@@ -127,8 +128,8 @@ map3 :
     -> Return msg b
     -> Return msg c
     -> Return msg d
-map3 f ( x, cmd ) ( y, cmd' ) ( z, cmd'' ) =
-    f x y z ! [ cmd, cmd', cmd'' ]
+map3 f ( x, cmd ) ( y, cmd_ ) ( z, cmd__ ) =
+    f x y z ! [ cmd, cmd_, cmd__ ]
 
 
 {-| -}
@@ -163,10 +164,7 @@ singleton : model -> Return msg model
 singleton =
     flip (,) Cmd.none
 
-
 {-|
-Chain together expressions from `Model` to `Return`.
-
 ```elm
 -- arbitrary function to demonstrate
 foo : Model -> Return Msg Model
@@ -195,13 +193,13 @@ type `(a -> Return msg b)`.
 Commands will be accumulated automatically as is the case with all
 functions in this library.
 -}
-andThen : Return msg a -> (a -> Return msg b) -> Return msg b
-andThen ( model, cmd ) f =
+andThen : (a -> Return msg b) -> Return msg a -> Return msg b
+andThen f ( model, cmd ) =
     let
-        ( model', cmd' ) =
+        ( model_, cmd_ ) =
             f model
     in
-        model' ! [ cmd, cmd' ]
+        model_ ! [ cmd, cmd_ ]
 
 
 {-|
@@ -233,8 +231,8 @@ doFoo3Times =
 ```
 -}
 (<<<) : (b -> Return msg c) -> (a -> Return msg b) -> a -> Return msg c
-(<<<) f f' model =
-    f' model `andThen` f
+(<<<) f f_ model =
+    andThen f (f_ model)
 
 
 {-| -}
@@ -247,8 +245,8 @@ doFoo3Times =
 Add a `Cmd` to a `Return`, the `Model` is uneffected
 -}
 command : Cmd msg -> ReturnF msg model
-command cmd ( model, cmd' ) =
-    model ! [ cmd, cmd' ]
+command cmd ( model, cmd_ ) =
+    model ! [ cmd, cmd_ ]
 
 
 {-|
@@ -272,7 +270,7 @@ Drop the current `Cmd` and replace with an empty thunk
 -}
 dropCmd : ReturnF msg model
 dropCmd =
-    singleton << fst
+    singleton << Tuple.first
 
 
 {-| -}
@@ -288,4 +286,4 @@ sequence =
 {-| -}
 flatten : Return msg (Return msg model) -> Return msg model
 flatten =
-    flip andThen identity
+    andThen identity
