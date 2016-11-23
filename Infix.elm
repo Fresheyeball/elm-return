@@ -7,7 +7,6 @@ Elm is getting less functional, here is some relief
 
 Infix order may not work correctly
 https://github.com/elm-lang/elm-compiler/issues/1096
-
 -}
 
 import Return exposing (Return)

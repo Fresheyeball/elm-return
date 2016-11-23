@@ -40,5 +40,4 @@ Add a function to the front
 `b -> a >> a -> Cmd msg`
 -}
 comap : (b -> a) -> Respond msg a -> Respond msg b
-comap f fa =
-    fa << f
+comap = (>>)

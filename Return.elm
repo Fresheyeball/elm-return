@@ -182,9 +182,9 @@ They are now chainable with `andThen`...
 ```elm
 resulting : Return msg { model | bar : Int }
 resulting =
-  myReturn `andThen` foo
-           `andThen` foo
-           `andThen` foo
+  myReturn |> andThen foo
+           |> andThen foo
+           |> andThen foo
 ```
 
 Here we changed up `foo` three times, but we can use any function of
@@ -217,9 +217,9 @@ Go point free with `andThen` chaining. Looking at the example from `andThen`
 ```elm
 resulting : Return msg { model | bar : Int }
 resulting =
-  myReturn `andThen` foo
-           `andThen` foo
-           `andThen` foo
+  myReturn |> andThen foo
+           |> andThen foo
+           |> andThen foo
 ```
 
 this code roughly becomes:

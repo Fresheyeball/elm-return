@@ -34,18 +34,18 @@ update msg model =
     let
         (updateModel, updateCmd) =
             case (model, msg) of
-                (HomeMod model', HomeMsg msg') ->
+                (HomeMod model_, HomeMsg msg_) ->
                     let
                         (subModel, subCmd) =
-                            Home.update msg' model'
+                            Home.update msg_ model_
 
                     in
                         (HomeMod subModel, Cmd.map HomeMsg subCmd)
 
-                (AboutMod model', AboutMsg msg') ->
+                (AboutMod model_, AboutMsg msg_) ->
                     let
                         (subModel, subCmd) =
-                            About.update msg' model'
+                            About.update msg_ model_
 
                     in
                         (AboutMod subModel, Cmd.map AboutMsg subCmd)
@@ -72,7 +72,7 @@ we could forget to include `updateCmd` in the final `in` expression,
 and those side effects are lost. Or we could neglect to put the
 final *third* version of the model, `transformed`, into `conditionallyDoSomething`.
 That and there is a big dependence on pattern matching and literals,
-which does not lend itself well to pipelining. 
+which does not lend itself well to pipelining.
 
 Lets see how we can clean this up with `Return`.
 
@@ -86,12 +86,12 @@ type Msg = HomeMsg Home.Msg
 update : Msg -> Model -> Return Msg Model
 update msg model =
     (case (model, msg) of
-        (HomeMod model', HomeMsg msg') ->
-            Home.update msg' model'
+        (HomeMod model_, HomeMsg msg_) ->
+            Home.update msg_ model_
             |> mapBoth HomeMsg HomeMod
 
-        (AboutMod model', AboutMsg msg') ->
-            About.update msg' model'
+        (AboutMod model_, AboutMsg msg_) ->
+            About.update msg_ model_
             |> mapBoth AboutMsg AboutMod
 
         x ->
