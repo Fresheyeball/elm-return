@@ -100,7 +100,7 @@ update msg model =
                     Debug.log "Stray found" x
 
             in
-            singleton model)            
+                singleton model)            
     |> command alwaysDoMeCmd
     |> map Route.alwaysTranfromModelWithMe
     |> effect conditionallyDoSomething
