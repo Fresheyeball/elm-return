@@ -54,7 +54,7 @@ zero =
 
 
 {-|
-Transform the `Model` the `Cmd` will be left untouched
+Transform the `Model`, the `Cmd` will be left untouched
 -}
 map : (a -> b) -> Return msg a -> Return msg b
 map f ( model, cmd ) =
