@@ -3,13 +3,14 @@
 When writing Elm code you unavoidably have to interact with types like this:
 
 ```elm
-(model, Cmd msg)
+( model, Cmd msg )
 ```
 
 This library makes that a Type:
 
 ```elm
-type alias Return msg model = (model, Cmd msg)
+type alias Return msg model =
+    ( model, Cmd msg )
 ```
 
 You can interact with `Return` in terms of the `Model`, and trust that `Cmd`s
@@ -23,11 +24,13 @@ Lets say we have a situation where we have a top level `update` function
 and wish to embed a component's `update` function.
 
 ```elm
-type Model = HomeMod Home.Model
-           | AboutMod About.Model
+type Model
+    = HomeMod Home.Model
+    | AboutMod About.Model
 
-type Msg = HomeMsg Home.Msg
-         | AboutMsg About.Msg
+type Msg
+    = HomeMsg Home.Msg
+    | AboutMsg About.Msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -40,7 +43,7 @@ update msg model =
                             Home.update msg_ model_
 
                     in
-                        (HomeMod subModel, Cmd.map HomeMsg subCmd)
+                    ( HomeMod subModel, Cmd.map HomeMsg subCmd )
 
                 (AboutMod model_, AboutMsg msg_) ->
                     let
@@ -48,7 +51,7 @@ update msg model =
                             About.update msg_ model_
 
                     in
-                        (AboutMod subModel, Cmd.map AboutMsg subCmd)
+                    ( AboutMod subModel, Cmd.map AboutMsg subCmd )
 
                 x ->
                     let
@@ -56,15 +59,19 @@ update msg model =
                             Debug.log "Stray found" x
 
                     in
-                        (model, Cmd.none)
+                    ( model, Cmd.none )
 
        transformed =
           Route.alwaysTranfromModelWithMe updateModel
 
     in
-       transformed ! [ updateCmd
-                     , alwaysDoMeCmd
-                     , conditionallyDoSomething transformed ]
+    ( transformed
+    , Cmd.batch
+        [ updateCmd
+        , alwaysDoMeCmd
+        , conditionallyDoSomething transformed
+        ]
+    )
 ```
 
 The code above is good, but it suffers in some areas. For example
@@ -77,22 +84,24 @@ which does not lend itself well to pipelining.
 Lets see how we can clean this up with `Return`.
 
 ```elm
-type Model = HomeMod Home.Model
-           | AboutMod About.Model
+type Model
+    = HomeMod Home.Model
+    | AboutMod About.Model
 
-type Msg = HomeMsg Home.Msg
-         | AboutMsg About.Msg
+type Msg
+    = HomeMsg Home.Msg
+    | AboutMsg About.Msg
 
 update : Msg -> Model -> Return Msg Model
 update msg model =
     (case (model, msg) of
-        (HomeMod model_, HomeMsg msg_) ->
-            Home.update msg_ model_
-            |> mapBoth HomeMsg HomeMod
+        ( HomeMod model_, HomeMsg msg_ ) ->
+              Home.update msg_ model_
+                  |> mapBoth HomeMsg HomeMod
 
-        (AboutMod model_, AboutMsg msg_) ->
-            About.update msg_ model_
-            |> mapBoth AboutMsg AboutMod
+        ( AboutMod model_, AboutMsg msg_ ) ->
+              About.update msg_ model_
+                  |> mapBoth AboutMsg AboutMod
 
         x ->
             let
@@ -100,7 +109,7 @@ update msg model =
                     Debug.log "Stray found" x
 
             in
-                singleton model)            
+                singleton model)
     |> command alwaysDoMeCmd
     |> map Route.alwaysTranfromModelWithMe
     |> effect conditionallyDoSomething

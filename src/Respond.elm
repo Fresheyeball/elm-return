@@ -1,12 +1,13 @@
-module Respond exposing (..)
+module Respond exposing (Respond, append, comap, sum, zero)
 
 {-|
+
 @docs Respond, append, sum, zero, comap
+
 -}
 
 
-{-|
-A function from a model to a Cmd.
+{-| A function from a model to a Cmd.
 Basically there are times where you want to
 have a side effect on the world if the model
 has a certain shape. `Respond` facilitates
@@ -35,9 +36,9 @@ zero =
     always Cmd.none
 
 
-{-|
-Add a function to the front
+{-| Add a function to the front
 `b -> a >> a -> Cmd msg`
 -}
 comap : (b -> a) -> Respond msg a -> Respond msg b
-comap = (>>)
+comap =
+    (>>)
