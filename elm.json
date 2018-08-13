@@ -1,0 +1,16 @@
+{
+    "type": "package",
+    "name": "Fresheyeball/elm-return",
+    "summary": "Return as a Writer Monad",
+    "license": "BSD-3-Clause",
+    "version": "6.0.3",
+    "exposed-modules": [
+        "Return",
+        "Respond"
+    ],
+    "elm-version": "0.19.0 <= v < 0.20.0",
+    "dependencies": {
+        "elm/core": "1.0.0 <= v < 2.0.0"
+    },
+    "test-dependencies": {}
+}
