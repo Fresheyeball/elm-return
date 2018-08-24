@@ -3,7 +3,7 @@
     "name": "Fresheyeball/elm-return",
     "summary": "Return as a Writer Monad",
     "license": "BSD-3-Clause",
-    "version": "6.0.3",
+    "version": "7.0.0",
     "exposed-modules": [
         "Return",
         "Respond"

@@ -46,7 +46,7 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 
 ## Basics
 
-@docs singleton, andThen, (>>>), (<<<)
+@docs singleton, andThen
 
 
 ## Write `Cmd`s
