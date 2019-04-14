@@ -112,7 +112,7 @@ update msg model =
                 singleton model)
     |> command alwaysDoMeCmd
     |> map Route.alwaysTranfromModelWithMe
-    |> effect conditionallyDoSomething
+    |> effect_ conditionallyDoSomething
 ```
 
 The cleaned up code is not only more succinct, and more imperative (in a good way),
