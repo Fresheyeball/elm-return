@@ -44,12 +44,12 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 
 ## Piping
 
-@docs piper, pipel, zero
+@docs piper, pipel, zero, piperK, pipelK
 
 
 ## Basics
 
-@docs singleton, andThen
+@docs singleton, andThen, andThenK
 
 
 ## Write `Cmd`s
