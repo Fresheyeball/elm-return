@@ -4,6 +4,7 @@ module Return
         , ReturnF
         , andMap
         , andThen
+        , andThenK
         , command
         , dropCmd
         , effect_
@@ -17,7 +18,9 @@ module Return
         , mapCmd
         , mapWith
         , pipel
+        , pipelK
         , piper
+        , piperK
         , return
         , sequence
         , singleton
@@ -285,3 +288,21 @@ sequence =
 flatten : Return msg (Return msg model) -> Return msg model
 flatten =
     andThen identity
+
+
+{-| Kleisli composition  -}
+andThenK : (a -> Return x b) -> (b -> Return x c) -> (a -> Return x c)
+andThenK x y a =
+    x a |> andThen y
+
+
+{-| Compose updaters from the left -}
+pipelK : List (a -> Return x a) -> (a -> Return x a)
+pipelK =
+    List.foldl andThenK singleton
+
+
+{-| Compose updaters from the right -}
+piperK : List (a -> Return x a) -> (a -> Return x a)
+piperK =
+    List.foldr andThenK singleton
