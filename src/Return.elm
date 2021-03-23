@@ -1,31 +1,11 @@
-module Return
-    exposing
-        ( Return
-        , ReturnF
-        , andMap
-        , andThen
-        , andThenK
-        , command
-        , dropCmd
-        , effect_
-        , flatten
-        , map
-        , map2
-        , map3
-        , map4
-        , map5
-        , mapBoth
-        , mapCmd
-        , mapWith
-        , pipel
-        , pipelK
-        , piper
-        , piperK
-        , return
-        , sequence
-        , singleton
-        , zero
-        )
+module Return exposing
+    ( Return, ReturnF
+    , map, map2, map3, map4, map5, andMap, mapWith, mapCmd, mapBoth, dropCmd
+    , piper, pipel, zero, piperK, pipelK
+    , singleton, andThen, andThenK
+    , return, command, effect_
+    , sequence, flatten
+    )
 
 {-|
 
@@ -142,9 +122,9 @@ mapBoth f f_ ( model, cmd ) =
 {-| Combine 2 `Return`s with a function
 
     map2
-      (\modelA modelB -> { modelA | foo = modelB.foo })
-      retA
-      retB
+        (\modelA modelB -> { modelA | foo = modelB.foo })
+        retA
+        retB
 
 -}
 map2 :
@@ -290,19 +270,22 @@ flatten =
     andThen identity
 
 
-{-| Kleisli composition  -}
-andThenK : (a -> Return x b) -> (b -> Return x c) -> (a -> Return x c)
-andThenK x y a =
+{-| Kleisli composition
+-}
+andThenK : (b -> Return x c) -> (a -> Return x b) -> (a -> Return x c)
+andThenK y x a =
     x a |> andThen y
 
 
-{-| Compose updaters from the left -}
+{-| Compose updaters from the left
+-}
 pipelK : List (a -> Return x a) -> (a -> Return x a)
 pipelK =
     List.foldl andThenK singleton
 
 
-{-| Compose updaters from the right -}
+{-| Compose updaters from the right
+-}
 piperK : List (a -> Return x a) -> (a -> Return x a)
 piperK =
     List.foldr andThenK singleton
