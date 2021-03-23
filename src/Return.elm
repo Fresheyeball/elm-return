@@ -1,7 +1,7 @@
 module Return exposing
     ( Return, ReturnF
     , map, map2, map3, map4, map5, andMap, mapWith, mapCmd, mapBoth, dropCmd
-    , piper, pipel, zero, piperK, pipelK
+    , piper, pipel, zero, piperK, pipelK, concatK
     , singleton, andThen, andThenK
     , return, command, effect_
     , sequence, flatten
@@ -24,7 +24,7 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 
 ## Piping
 
-@docs piper, pipel, zero, piperK, pipelK
+@docs piper, pipel, zero, piperK, pipelK, concatK
 
 
 ## Basics
@@ -275,6 +275,20 @@ flatten =
 andThenK : (b -> Return x c) -> (a -> Return x b) -> (a -> Return x c)
 andThenK y x a =
     x a |> andThen y
+
+
+{-| Compose a list of updaters.
+
+    concatK [ doFirst, doSecond ]
+
+is equivalent to
+
+    andThen doFirst >> andThen doSecond
+
+-}
+concatK : List (a -> Return x a) -> (a -> Return x a)
+concatK =
+    pipelK
 
 
 {-| Compose updaters from the left
