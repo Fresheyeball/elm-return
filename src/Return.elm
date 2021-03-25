@@ -249,9 +249,9 @@ mapCmd f ( model, cmd ) =
 
 {-| Drop the current `Cmd` and replace with an empty thunk
 -}
-dropCmd : ReturnF msg model
+dropCmd : Return msgA model -> Return msgB model
 dropCmd =
-    singleton << Tuple.first
+    Tuple.mapSecond (always Cmd.none)
 
 
 {-| -}
