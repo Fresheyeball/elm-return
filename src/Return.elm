@@ -4,7 +4,7 @@ module Return exposing
     , piper, pipel, zero, piperK, pipelK
     , singleton, andThen, andThenK
     , return, command, effect_
-    , sequence, flatten
+    , sequence, flatten, sequenceMaybe, traverseMaybe
     )
 
 {-|
@@ -39,7 +39,7 @@ Modeling the `update` tuple as a Monad similar to `Writer`
 
 ## Fancy non-sense
 
-@docs sequence, flatten
+@docs sequence, flatten, sequenceMaybe, traverseMaybe
 
 -}
 
@@ -262,6 +262,17 @@ sequence =
             ( model :: models, Cmd.batch [ cmd, cmds ] )
     in
     List.foldr f ( [], Cmd.none )
+
+
+{-| -}
+sequenceMaybe : Maybe (Return msg model) -> Return msg (Maybe model)
+sequenceMaybe =
+    Maybe.map (map Just) >> Maybe.withDefault (singleton Nothing)
+
+
+traverseMaybe : (a -> Return msg model) -> Maybe a -> Return msg (Maybe model)
+traverseMaybe f =
+    Maybe.map f >> sequenceMaybe
 
 
 {-| -}
